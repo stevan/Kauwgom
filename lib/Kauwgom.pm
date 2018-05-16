@@ -76,6 +76,6 @@ sub call ($self, $env) {
     return $output;
 }
 
-1;
+__PACKAGE__;
 
 __END__

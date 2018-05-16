@@ -30,6 +30,6 @@ sub reset_channels ($self) {
 	$self->output->reset;
 }
 
-1;
+__PACKAGE__;
 
 __END__

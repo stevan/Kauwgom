@@ -13,6 +13,6 @@ sub read ($self)          { return $self->{_state} }
 sub write ($self, $value) { $self->{_state} = $value; return }
 sub reset ($self)         { $self->{_state} = undef;  return }
 
-1;
+__PACKAGE__;
 
 __END__
