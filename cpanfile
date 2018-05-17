@@ -14,5 +14,5 @@ requires 'slots'             => 0;
 requires 'Plack'             => 0;
 requires 'Path::Tiny'        => 0;
 
-## testing 
+## testing
 requires 'Test::More'        => 0;
