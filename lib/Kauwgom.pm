@@ -4,9 +4,8 @@ use v5.24;
 use warnings;
 use experimental 'signatures', 'postderef';
 
-use JavaScript::Duktape::XS;
-
 use Path::Tiny   ();
+use Carp         ();
 use Scalar::Util ();
 
 use Kauwgom::Host;
@@ -16,10 +15,9 @@ our $VERSION = '0.01';
 
 use parent 'UNIVERSAL::Object::Immutable';
 use slots (
-	app   => sub { die 'You must supply an `app` to run' },
+	wire    => sub { die 'You must supply some `wire` to use' },
+    duktape => sub { die 'You must supply some `duktape` to use' },
 	# internal slots
-	_src  => sub {},
-	_duk  => sub { JavaScript::Duktape::XS->new({ gather_stats => 1 }) },
 	_host => sub { 
 		Kauwgom::Host->new(
 			input  => Kauwgom::Host::Channel->new,
@@ -29,37 +27,59 @@ use slots (
 );
 
 sub BUILD ($self, $) {
-	$self->{_src} = Path::Tiny::path( $self->{app} )->slurp;
+    Carp::confess('The `wire` supplied must be an instance of Wire::Bale')
+        unless Scalar::Util::blessed( $self->{wire} ) 
+            && $self->{wire}->isa('Balen::Draad');
+
+    Carp::confess('The `duktape` supplied must be an instance of Javascript::Duktape::XS')
+        unless Scalar::Util::blessed( $self->{duktape} ) 
+            && $self->{duktape}->isa('JavaScript::Duktape::XS');              
 }
 
-sub to_app ($self) {
+sub to_app {
+    my $self = shift;
     $self->prepare_app;
     return sub { $self->call(@_) };
 }
 
 sub prepare_app ($self) {
+
+    my $duk  = $self->{duktape};
+    my $host = $self->{_host};
+
 	## load the core JS library 
-	$self->{_duk}->eval(
-		Path::Tiny::path(__FILE__)->parent->child('Kauwgom/JS/Kauwgom.js')->slurp
-	);
-	## setup the host now ...
-	$self->{_duk}->set('Kauwgom.Host.name',             $self->{_host}->name);
-	$self->{_duk}->set('Kauwgom.Host.version',          $self->{_host}->version);
-	$self->{_duk}->set('Kauwgom.Host.channels.INPUT',   sub ()      { return $self->{_host}->input->read           });
-	$self->{_duk}->set('Kauwgom.Host.channels.OUTPUT',  sub ($resp) { $self->{_host}->output->write($resp); return });
+	$duk->eval( Path::Tiny::path(__FILE__)->parent->child('Kauwgom/JS/Kauwgom.js')->slurp );
+
+	## setup the host ...
+	$duk->set('Kauwgom.Host.name',             $host->name);
+	$duk->set('Kauwgom.Host.version',          $host->version);
+	$duk->set('Kauwgom.Host.channels.INPUT',   sub ()      { return $host->input->read           });
+	$duk->set('Kauwgom.Host.channels.OUTPUT',  sub ($resp) { $host->output->write($resp); return });
 }
 
 sub call ($self, $env) {
 
-    $self->{_host}->reset_channels;
-    $self->{_host}->input->write( { $env->%{ grep !/^psgi(x)?\./, keys $env->%* } } );
+    my $wire = $self->{wire};
+    my $duk  = $self->{duktape};
+    my $host = $self->{_host};  
 
-    $self->{_duk}->eval( $self->{_src} );
+    ## setup the data
+    my $tmpl_data = $wire->construct_tmpl_data( $env );
+    
+    ## prepare the env
+    my $prepared_env = { $env->%{ grep !/^psgi(x)?\./, keys $env->%* } };
 
-    my $output = $self->{_host}->output->read;
-    #warn Dumper $output;
-    #warn Dumper $k->host->output;
+    ## reset the channels and write new input ...
+    $host->reset_channels;
+    $host->input->write( { env => $prepared_env, tmpl_data => $tmpl_data } );
 
+    ## eval the source and run the application 
+    $duk->eval( $wire->compile_source );
+
+    ## then fetch the output 
+    my $output = $host->output->read;
+
+    # convert any header hashes into PSGI arrays
     if ( ref $output->[1] eq 'HASH' ) {
         $output->[1] = [
             map {
