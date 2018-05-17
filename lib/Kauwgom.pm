@@ -8,16 +8,19 @@ use Path::Tiny   ();
 use Carp         ();
 use Scalar::Util ();
 
+use JavaScript::Duktape::XS;
+
 use Kauwgom::Host;
 use Kauwgom::Host::Channel;
+use Kauwgom::Application;
 
 our $VERSION = '0.01';
 
 use parent 'UNIVERSAL::Object::Immutable';
 use slots (
-	wire    => sub { die 'You must supply some `wire` to use' },
-    duktape => sub { die 'You must supply some `duktape` to use' },
-	# internal slots
+    # internal data ...
+    _app  => sub {},
+    _duk  => sub {},
 	_host => sub { 
 		Kauwgom::Host->new(
 			input  => Kauwgom::Host::Channel->new,
@@ -26,14 +29,20 @@ use slots (
 	}
 );
 
-sub BUILD ($self, $) {
-    Carp::confess('The `wire` supplied must be an instance of Wire::Bale')
-        unless Scalar::Util::blessed( $self->{wire} ) 
-            && $self->{wire}->isa('Balen::Draad');
+sub BUILDARGS ($class, @args) {
+    my $args = $class->SUPER::BUILDARGS( @args );
+    Carp::confess('You must provide an `application_path`')
+        unless $args->{application_path};
+    Carp::confess('You must provide an `tmpl_data_provider`')
+        unless $args->{tmpl_data_provider};
+    return $args;
+}
 
-    Carp::confess('The `duktape` supplied must be an instance of Javascript::Duktape::XS')
-        unless Scalar::Util::blessed( $self->{duktape} ) 
-            && $self->{duktape}->isa('JavaScript::Duktape::XS');              
+sub BUILD ($self, $params) {
+    # pull the app together ...
+    $self->{_app} = Kauwgom::Application->new( $params->%{qw[ application_path tmpl_data_provider ]} );
+    ## setup duktape ...
+    $self->{_duk} = JavaScript::Duktape::XS->new({ gather_stats => 1 });          
 }
 
 sub to_app {
@@ -44,7 +53,7 @@ sub to_app {
 
 sub prepare_app ($self) {
 
-    my $duk  = $self->{duktape};
+    my $duk  = $self->{_duk};
     my $host = $self->{_host};
 
 	## load the core JS library 
@@ -59,12 +68,12 @@ sub prepare_app ($self) {
 
 sub call ($self, $env) {
 
-    my $wire = $self->{wire};
-    my $duk  = $self->{duktape};
+    my $app  = $self->{_app};
+    my $duk  = $self->{_duk};
     my $host = $self->{_host};  
 
     ## setup the data
-    my $tmpl_data = $wire->construct_tmpl_data( $env );
+    my $tmpl_data = $app->construct_tmpl_data( $env );
     
     ## prepare the env
     my $prepared_env = { $env->%{ grep !/^psgi(x)?\./, keys $env->%* } };
@@ -74,7 +83,7 @@ sub call ($self, $env) {
     $host->input->write( { env => $prepared_env, tmpl_data => $tmpl_data } );
 
     ## eval the source and run the application 
-    $duk->eval( $wire->compile_source );
+    $duk->eval( $app->compile_source );
 
     ## then fetch the output 
     my $output = $host->output->read;
