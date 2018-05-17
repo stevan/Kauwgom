@@ -24,7 +24,7 @@ sub BUILD ($self, $) {
 
 sub construct_tmpl_data ($self, $env) { $self->{tmpl_data_provider}->( $env ) }
 
-sub compile_source ($self) { $self->{application_path}->slurp }
+sub compile_source ($self) { $self->{application_path}->slurp_utf8 }
 
 __PACKAGE__;
 

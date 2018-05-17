@@ -58,7 +58,7 @@ sub prepare_app ($self) {
     my $host = $self->{_host};
 
     ## load the core JS library
-    $duk->eval( Path::Tiny::path(__FILE__)->parent->child('Kauwgom/JS/Kauwgom.js')->slurp );
+    $duk->eval( Path::Tiny::path(__FILE__)->parent->child('Kauwgom/JS/Kauwgom.js')->slurp_utf8 );
 
     ## setup the host ...
     $duk->set('Kauwgom.Host.name',             $host->name);
