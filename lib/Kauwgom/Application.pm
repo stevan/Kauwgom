@@ -10,7 +10,7 @@ use Scalar::Util ();
 
 our $VERSION = '0.01';
 
-use parent 'UNIVERSAL::Object';
+use parent 'UNIVERSAL::Object::Immutable';
 use slots (
     application_path   => sub { die 'You must supply an `application_path`' },
     tmpl_data_provider => sub { sub { +{ hello => 'world' } } },
