@@ -1,11 +1,11 @@
 
 function main ( req, tmpl_data ) {
 
-    var json = JSON.stringify( 
+    var json = JSON.stringify(
         {
             "ENV"       : req.getEnv(),
             "TMPL_DATA" : tmpl_data
-        }, 
+        },
         null, 2
     );
 
@@ -18,7 +18,7 @@ function main ( req, tmpl_data ) {
         "X-Kauwgom-Host" : Kauwgom.Host.version,
         "X-Duktape"      : Duktape.version
     });
-    
+
     resp.setBody([ json ]);
 
     return resp;
