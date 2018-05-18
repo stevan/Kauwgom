@@ -1,0 +1,66 @@
+<page>
+	<store>
+		<tmpl-data-provider type="perl/Some::Class::Foo" name="Foo" available_on="server,client">
+			<param-map from="request.query:foo"               to="bar" />
+			<param-map from="request.query:bar"               to="foo" />
+			<param-map from="request.header:Content-Type"     to="return_type" />
+			<param-map from="session:user.name"               to="user" />
+			<param-map from="config:is.allowed"               to="is_allowed" />
+			<param-map from="experiment:test_show_extra_data" to="show_extra_data" />
+		</tmpl-data-provider>
+		<tmpl-data-provider type="perl/Some::Class::Baz" name="Baz" available_on="server">
+			<param_map from="session:user.name" to="user" />
+		</tmpl-data-provider>
+	</store>
+	<components env="server">
+		<component type="svelte" name="Foo-Card.js" />
+		<component type="svelte" name="UI-Button.js" />
+	</components>
+	<components env="client">
+		<component type="svelte" name="Modal.js" />
+	</components>	
+	<body>
+		<layout type="two-column">
+			<header type="extranet-header" />
+			<footer type="extranet-footer" />
+		</layout>
+	</body>
+</page>
+<!--
+
+# Build Steps
+
+Build MANIFEST of
+	All components for server
+	All components for client
+	All data providers
+
+Call `$build-tool` with the details in the MANIFEST
+
+Which does the following:
+	Server
+		Run `$thing` for each server:component
+			extract data provider <-> component mapping
+		Run `rollup` for each server:component
+			extract/transform JS
+	Client	
+		Run `webpack` for each server:component
+			extract/transform CSS
+		Run `webpack` for each client:component
+			extract/transform CSS		
+		Run `webpack` for each client:component
+			extract/transform js	
+
+Which results in:
+	CSS that can go to static pipeline for CDN delivery to client
+	JS that can go to static pipeline for CDN delivery to client	
+	JS that can be run on the server side to render the page
+	JSON file that maps components to data providers
+
+At Server Runtime:
+	foreach server:component
+		consult data provider mapping
+		pass in data from provider
+		render(data)
+
+-->
