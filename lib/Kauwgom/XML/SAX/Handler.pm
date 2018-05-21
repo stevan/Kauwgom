@@ -23,6 +23,14 @@ sub start_document ($self, $) {
 sub start_element ($self, $element)  {
     my $e = { name => $element->{Name} };
 
+    if ( exists $element->{Attributes} && scalar keys $element->{Attributes}->%* ) {
+        $e->{attributes} = {
+            map {
+                $_->{Name} => $_->{Value}
+            } values $element->{Attributes}->%*
+        };
+    }
+
     if ( $self->{_stack}->@* ) {
         $self->{_stack}->[-1]->{children} ||= [];
         push $self->{_stack}->[-1]->{children}->@* => $e;
