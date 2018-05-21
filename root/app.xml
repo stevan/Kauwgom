@@ -1,30 +1,41 @@
+<!--
+Micro-formats:
+	perl/Some::Class::Foo - platform / provider-identifier
+	request.query:foo     - data-provider : key
+	server,client         - identifier, *
+
+-->
 <page>
+
 	<store>
-		<tmpl-data-provider type="perl/Some::Class::Foo" name="Foo" available_on="server,client">
-			<param-map from="request.query:foo"               to="bar" />
-			<param-map from="request.query:bar"               to="foo" />
-			<param-map from="request.header:Content-Type"     to="return_type" />
-			<param-map from="session:user.name"               to="user" />
-			<param-map from="config:is.allowed"               to="is_allowed" />
-			<param-map from="experiment:test_show_extra_data" to="show_extra_data" />
-		</tmpl-data-provider>
-		<tmpl-data-provider type="perl/Some::Class::Baz" name="Baz" available_on="server">
-			<param_map from="session:user.name" to="user" />
-		</tmpl-data-provider>
+		<tmpl-data provider="perl/Some::Class::Foo" name="Foo" available_on="server,client">
+			<param from="request.query:foo"               to="bar" />
+			<param from="request.query:bar"               to="foo" />
+			<param from="request.header:Content-Type"     to="return_type" />
+			<param from="session:user.name"               to="user" />
+			<param from="config:is.allowed"               to="is_allowed" />
+			<param from="experiment:test_show_extra_data" to="show_extra_data" />
+		</tmpl-data>
+		<tmpl-data provider="perl/Some::Class::Baz" name="Baz" available_on="server">
+			<param from="session:user.name" to="user" />
+		</tmpl-data>
 	</store>
+
 	<components env="server">
 		<component type="svelte" name="Foo-Card.js" />
 		<component type="svelte" name="UI-Button.js" />
 	</components>
+
 	<components env="client">
 		<component type="svelte" name="Modal.js" />
-	</components>	
-	<body>
-		<layout type="two-column">
-			<header type="extranet-header" />
-			<footer type="extranet-footer" />
-		</layout>
+	</components>
+
+	<body layout="extranet-two-column">
+		<header  type="extranet-header" />
+		<article />
+		<footer  type="extranet-footer" />
 	</body>
+
 </page>
 <!--
 
@@ -43,17 +54,17 @@ Which does the following:
 			extract data provider <-> component mapping
 		Run `rollup` for each server:component
 			extract/transform JS
-	Client	
+	Client
 		Run `webpack` for each server:component
 			extract/transform CSS
 		Run `webpack` for each client:component
-			extract/transform CSS		
+			extract/transform CSS
 		Run `webpack` for each client:component
-			extract/transform js	
+			extract/transform js
 
 Which results in:
 	CSS that can go to static pipeline for CDN delivery to client
-	JS that can go to static pipeline for CDN delivery to client	
+	JS that can go to static pipeline for CDN delivery to client
 	JS that can be run on the server side to render the page
 	JSON file that maps components to data providers
 
