@@ -30,11 +30,10 @@ Micro-formats:
 		<component type="svelte" name="Modal.js" />
 	</components>
 
-	<body layout="extranet-two-column">
-		<header  type="extranet-header" />
-		<article />
-		<footer  type="extranet-footer" />
-	</body>
+	<body
+        layout="extranet-two-column"
+		header="extranet-header"
+		footer="extranet-footer" />
 
 </page>
 <!--
