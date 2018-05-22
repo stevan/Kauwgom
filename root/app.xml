@@ -8,7 +8,7 @@ Micro-formats:
 <page>
 
 	<store>
-		<tmpl-data provider="perl/Some::Class::Foo" name="Foo" available_on="server,client">
+		<tmpl-data provider="perl/Some::Class::Foo" name="Foo" available-on="server,client">
 			<param from="request.query:foo"               to="bar" />
 			<param from="request.query:bar"               to="foo" />
 			<param from="request.header:Content-Type"     to="return_type" />
@@ -16,19 +16,19 @@ Micro-formats:
 			<param from="config:is.allowed"               to="is_allowed" />
 			<param from="experiment:test_show_extra_data" to="show_extra_data" />
 		</tmpl-data>
-		<tmpl-data provider="perl/Some::Class::Baz" name="Baz" available_on="server">
+		<tmpl-data provider="perl/Some::Class::Baz" name="Baz" available-on="server">
 			<param from="session:user.name" to="user" />
 		</tmpl-data>
 	</store>
 
-	<components env="server">
+	<server-components>
 		<component type="svelte" name="Foo-Card.js" />
 		<component type="svelte" name="UI-Button.js" />
-	</components>
+	</server-components>
 
-	<components env="client">
+	<client-components>
 		<component type="svelte" name="Modal.js" />
-	</components>
+	</client-components>
 
 	<body
         layout="extranet-two-column"
