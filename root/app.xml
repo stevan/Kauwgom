@@ -21,12 +21,20 @@ Micro-formats:
 	</store>
 
 	<server-components>
-		<component type="svelte" name="Foo-Card.js" />
-		<component type="svelte" name="UI-Button.js" />
+		<component type="svelte" name="Foo-Card.js">
+			<depends on="store:Foo" />
+			<depends on="store:Bar" />
+			<depends on="config:card.defaults" />
+		</component>
+		<component type="svelte" name="UI-Button.js">
+			<depends on="session:user" />
+		</component>
 	</server-components>
 
 	<client-components>
-		<component type="svelte" name="Modal.js" />
+		<component type="svelte" name="Modal.js">
+			<depends on="store:Baz" />
+		</component>
 	</client-components>
 
 	<body
