@@ -2,7 +2,6 @@
 Micro-formats:
 	perl/Some::Class::Foo - platform / provider-identifier
 	request.query:foo     - data-provider : key
-	server,client         - identifier, *
 
 -->
 <page>
