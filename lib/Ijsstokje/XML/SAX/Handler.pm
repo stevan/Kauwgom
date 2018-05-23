@@ -70,9 +70,7 @@ sub _inflate_page ($self, $data) {
             foreach my $provider ( $c->{children}->@* ) {
 
                 my $name             = $provider->{attributes}->{'name'};
-                my @available_on     = split /\,/ => $provider->{attributes}->{'available-on'};
                 my ($type, $handler) = split /\// => $provider->{attributes}->{'provider'};
-
 
                 my %parameters;
                 foreach my $param ( $provider->{children}->@* ) {
@@ -80,11 +78,10 @@ sub _inflate_page ($self, $data) {
                 }
 
                 push @providers => Ijsstokje::Page::Store::Provider->new(
-                    type         => $type,
-                    handler      => $handler,
-                    name         => $name,
-                    available_on => \@available_on,
-                    parameters   => \%parameters,
+                    type       => $type,
+                    handler    => $handler,
+                    name       => $name,
+                    parameters => \%parameters,
                 )
             }
 
