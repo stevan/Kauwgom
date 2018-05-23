@@ -19,11 +19,10 @@ subtest '... testing a simple page' => sub {
         store => Ijsstokje::Page::Store->new(
             providers => [
                 Ijsstokje::Page::Store::Provider->new(
-                    type         => 'perl',
-                    name         => 'Foo',
-                    handler      => 'Some::Class::Foo',
-                    available_on => [ 'server', 'client' ],
-                    parameters   => {
+                    type       => 'perl',
+                    name       => 'Foo',
+                    handler    => 'Some::Class::Foo',
+                    parameters => {
                         'request.query:foo'               => 'bar',
                         'request.query:bar'               => 'foo',
                         'request.header:Content-Type'     => 'return_type',
@@ -33,11 +32,10 @@ subtest '... testing a simple page' => sub {
                     }
                 ),
                 Ijsstokje::Page::Store::Provider->new(
-                    type         => 'perl',
-                    name         => 'Bar',
-                    handler      => 'Some::Class::Bar',
-                    available_on => [ 'server' ],
-                    parameters   => {
+                    type       => 'perl',
+                    name       => 'Bar',
+                    handler    => 'Some::Class::Bar',
+                    parameters => {
                         'session:user.name' => 'user',
                     }
                 )
