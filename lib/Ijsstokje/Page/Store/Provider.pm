@@ -1,4 +1,4 @@
-package Kauwgom::Page::Store::Provider;
+package Ijsstokje::Page::Store::Provider;
 
 use v5.24;
 use warnings;

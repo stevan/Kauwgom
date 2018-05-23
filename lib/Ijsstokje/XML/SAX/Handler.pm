@@ -1,14 +1,14 @@
-package Kauwgom::XML::SAX::Handler;
+package Ijsstokje::XML::SAX::Handler;
 
 use v5.24;
 use warnings;
 use experimental 'signatures', 'postderef';
 
-use Kauwgom::Page;
-use Kauwgom::Page::Store;
-use Kauwgom::Page::Store::Provider;
-use Kauwgom::Page::Body;
-use Kauwgom::Page::Component;
+use Ijsstokje::Page;
+use Ijsstokje::Page::Store;
+use Ijsstokje::Page::Store::Provider;
+use Ijsstokje::Page::Body;
+use Ijsstokje::Page::Component;
 
 our $VERSION = '0.01';
 
@@ -79,7 +79,7 @@ sub _inflate_page ($self, $data) {
                     $parameters{ $param->{attributes}->{'from'} } = $param->{attributes}->{'to'};
                 }
 
-                push @providers => Kauwgom::Page::Store::Provider->new(
+                push @providers => Ijsstokje::Page::Store::Provider->new(
                     type         => $type,
                     handler      => $handler,
                     name         => $name,
@@ -88,31 +88,31 @@ sub _inflate_page ($self, $data) {
                 )
             }
 
-            $store = Kauwgom::Page::Store->new( providers => \@providers );
+            $store = Ijsstokje::Page::Store->new( providers => \@providers );
         }
         elsif ( $c->{name} eq 'server-components' ) {
             $server_comps = [
                 map
-                Kauwgom::Page::Component->new( $_->{attributes}->%{qw[ type name ]} ),
+                Ijsstokje::Page::Component->new( $_->{attributes}->%{qw[ type name ]} ),
                 $c->{children}->@*
             ];
         }
         elsif ( $c->{name} eq 'client-components' ) {
             $client_comps = [
                 map
-                Kauwgom::Page::Component->new( $_->{attributes}->%{qw[ type name ]} ),
+                Ijsstokje::Page::Component->new( $_->{attributes}->%{qw[ type name ]} ),
                 $c->{children}->@*
             ];
         }
         elsif ( $c->{name} eq 'body' ) {
-            $body = Kauwgom::Page::Body->new( $c->{attributes}->%{qw[ layout header footer ]} );
+            $body = Ijsstokje::Page::Body->new( $c->{attributes}->%{qw[ layout header footer ]} );
         }
         else {
             die "No idea what this is: " . Data::Dumper::Dumper( $c );
         }
     }
 
-    return Kauwgom::Page->new(
+    return Ijsstokje::Page->new(
         store             => $store,
         server_components => $server_comps,
         client_components => $client_comps,

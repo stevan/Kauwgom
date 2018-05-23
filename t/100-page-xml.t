@@ -6,14 +6,14 @@ use warnings;
 use Test::More;
 
 use XML::SAX::Expat;
-use Kauwgom::XML::SAX::Handler;
+use Ijsstokje::XML::SAX::Handler;
 
-my $x = XML::SAX::Expat->new( Handler => Kauwgom::XML::SAX::Handler->new );
+my $x = XML::SAX::Expat->new( Handler => Ijsstokje::XML::SAX::Handler->new );
 my $p = $x->parse_file('root/app.xml');
 
-isa_ok($p, 'Kauwgom::Page');
-isa_ok($p->body, 'Kauwgom::Page::Body');
-isa_ok($p->store, 'Kauwgom::Page::Store');
+isa_ok($p, 'Ijsstokje::Page');
+isa_ok($p->body, 'Ijsstokje::Page::Body');
+isa_ok($p->store, 'Ijsstokje::Page::Store');
 
 #use Data::Dumper;
 #warn Dumper $p;

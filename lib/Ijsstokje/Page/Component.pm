@@ -1,4 +1,4 @@
-package Kauwgom::Page::Component;
+package Ijsstokje::Page::Component;
 
 use v5.24;
 use warnings;

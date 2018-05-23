@@ -6,19 +6,19 @@ use warnings;
 use Test::More;
 
 BEGIN {
-    use_ok('Kauwgom::Page');
-    use_ok('Kauwgom::Page::Store');
-    use_ok('Kauwgom::Page::Store::Provider');
-    use_ok('Kauwgom::Page::Component');
-    use_ok('Kauwgom::Page::Body');
+    use_ok('Ijsstokje::Page');
+    use_ok('Ijsstokje::Page::Store');
+    use_ok('Ijsstokje::Page::Store::Provider');
+    use_ok('Ijsstokje::Page::Component');
+    use_ok('Ijsstokje::Page::Body');
 }
 
 subtest '... testing a simple page' => sub {
 
-    my $p = Kauwgom::Page->new(
-        store => Kauwgom::Page::Store->new(
+    my $p = Ijsstokje::Page->new(
+        store => Ijsstokje::Page::Store->new(
             providers => [
-                Kauwgom::Page::Store::Provider->new(
+                Ijsstokje::Page::Store::Provider->new(
                     type         => 'perl',
                     name         => 'Foo',
                     handler      => 'Some::Class::Foo',
@@ -32,7 +32,7 @@ subtest '... testing a simple page' => sub {
                         'experiment:test_show_extra_data' => 'show_extra_data',
                     }
                 ),
-                Kauwgom::Page::Store::Provider->new(
+                Ijsstokje::Page::Store::Provider->new(
                     type         => 'perl',
                     name         => 'Bar',
                     handler      => 'Some::Class::Bar',
@@ -44,22 +44,22 @@ subtest '... testing a simple page' => sub {
             ]
         ),
         server_components => [
-            Kauwgom::Page::Component->new( type => 'svelte', name => 'Foo-Card.js' ),
-            Kauwgom::Page::Component->new( type => 'svelte', name => 'UI-Button.js' ),
+            Ijsstokje::Page::Component->new( type => 'svelte', name => 'Foo-Card.js' ),
+            Ijsstokje::Page::Component->new( type => 'svelte', name => 'UI-Button.js' ),
         ],
         client_components => [
-            Kauwgom::Page::Component->new( type => 'svelte', name => 'Modal.js' ),
+            Ijsstokje::Page::Component->new( type => 'svelte', name => 'Modal.js' ),
         ],
-        body => Kauwgom::Page::Body->new(
+        body => Ijsstokje::Page::Body->new(
             layout => 'two-column',
             header => 'extranet-header',
             footer => 'extranet-footer',
         )
     );
 
-    isa_ok($p, 'Kauwgom::Page');
-    isa_ok($p->body, 'Kauwgom::Page::Body');
-    isa_ok($p->store, 'Kauwgom::Page::Store');
+    isa_ok($p, 'Ijsstokje::Page');
+    isa_ok($p->body, 'Ijsstokje::Page::Body');
+    isa_ok($p->store, 'Ijsstokje::Page::Store');
 
 };
 
