@@ -20,22 +20,15 @@ Micro-formats:
 		</tmpl-data>
 	</store>
 
-	<server-components>
-		<component type="svelte" name="Foo-Card.js">
-			<depends on="store:Foo" />
-			<depends on="store:Bar" />
-			<depends on="config:card.defaults" />
-		</component>
-		<component type="svelte" name="UI-Button.js">
-			<depends on="session:user" />
-		</component>
-	</server-components>
+	<component type="svelte" src="Foo-Card.js" env="server">
+		<depends on="store:Foo" />
+		<depends on="store:Baz" />
+		<depends on="config:card.defaults" />
+	</component>
 
-	<client-components>
-		<component type="svelte" name="Modal.js">
-			<depends on="store:Baz" />
-		</component>
-	</client-components>
+	<component type="svelte" src="Modal.js" env="client">
+		<depends on="store:Baz" />
+	</component>
 
 	<body
         layout="extranet-two-column"
