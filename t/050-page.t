@@ -41,12 +41,9 @@ subtest '... testing a simple page' => sub {
                 )
             ]
         ),
-        server_components => [
-            Ijsstokje::Page::Component->new( type => 'svelte', name => 'Foo-Card.js' ),
-            Ijsstokje::Page::Component->new( type => 'svelte', name => 'UI-Button.js' ),
-        ],
-        client_components => [
-            Ijsstokje::Page::Component->new( type => 'svelte', name => 'Modal.js' ),
+        components => [
+            Ijsstokje::Page::Component->new( type => 'svelte', name => 'Foo-Card.js', env => 'server' ),
+            Ijsstokje::Page::Component->new( type => 'svelte', name => 'Modal.js', env => 'client' ),
         ],
         body => Ijsstokje::Page::Body->new(
             layout => 'two-column',

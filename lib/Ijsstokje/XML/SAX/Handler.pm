@@ -62,7 +62,7 @@ sub end_document ($self, $) {
 
 sub _inflate_page ($self, $data) {
 
-    my ($store, $server_comps, $client_comps, $body);
+    my ($store, @components, $body);
     foreach my $c ( $data->{children}->@* ) {
         if ( $c->{name} eq 'store' ) {
 
@@ -87,19 +87,11 @@ sub _inflate_page ($self, $data) {
 
             $store = Ijsstokje::Page::Store->new( providers => \@providers );
         }
-        elsif ( $c->{name} eq 'server-components' ) {
-            $server_comps = [
-                map
-                Ijsstokje::Page::Component->new( $_->{attributes}->%{qw[ type name ]} ),
-                $c->{children}->@*
-            ];
-        }
-        elsif ( $c->{name} eq 'client-components' ) {
-            $client_comps = [
-                map
-                Ijsstokje::Page::Component->new( $_->{attributes}->%{qw[ type name ]} ),
-                $c->{children}->@*
-            ];
+        elsif ( $c->{name} eq 'component' ) {
+            push @components => Ijsstokje::Page::Component->new(
+                $c->{attributes}->%{qw[ type src env ]},
+                depends_on => [ map $_->{attributes}->{'on'}, $c->{children}->@* ]
+            );
         }
         elsif ( $c->{name} eq 'body' ) {
             $body = Ijsstokje::Page::Body->new( $c->{attributes}->%{qw[ layout header footer ]} );
@@ -110,10 +102,9 @@ sub _inflate_page ($self, $data) {
     }
 
     return Ijsstokje::Page->new(
-        store             => $store,
-        server_components => $server_comps,
-        client_components => $client_comps,
-        body              => $body,
+        store      => $store,
+        components => \@components,
+        body       => $body,
     );
 }
 
