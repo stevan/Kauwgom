@@ -54,6 +54,7 @@ sub to_app {
 
 sub prepare_app ($self) {
 
+    my $app  = $self->{_app};
     my $duk  = $self->{_duk};
     my $host = $self->{_host};
 
@@ -65,6 +66,9 @@ sub prepare_app ($self) {
     $duk->set('Kauwgom.Host.version',          $host->version);
     $duk->set('Kauwgom.Host.channels.INPUT',   sub ()      { return $host->input->read           });
     $duk->set('Kauwgom.Host.channels.OUTPUT',  sub ($resp) { $host->output->write($resp); return });
+
+    ## give the app a chance to set up ...
+    $app->prepare_app;
 }
 
 sub call ($self, $env) {

@@ -22,6 +22,8 @@ sub BUILD ($self, $) {
             && $self->{application_path}->isa('Path::Tiny');
 }
 
+sub prepare_app {}
+
 sub construct_tmpl_data ($self, $env) { $self->{tmpl_data_provider}->( $env ) }
 
 sub compile_source ($self) { $self->{application_path}->slurp_utf8 }
