@@ -4,8 +4,6 @@ use v5.24;
 use warnings;
 use experimental 'signatures', 'postderef';
 
-use List::Util ();
-
 our $VERSION = '0.01';
 
 use parent 'UNIVERSAL::Object::Immutable';

@@ -7,7 +7,7 @@ use experimental 'signatures', 'postderef';
 use Path::Tiny   ();
 use Carp         ();
 use Scalar::Util ();
-use Ref::Util    qw/ is_hashref is_arrayref /;
+use Ref::Util    ();
 
 use JavaScript::Duktape::XS;
 
@@ -90,13 +90,13 @@ sub call ($self, $env) {
     my $output = $host->output->read;
 
     # convert any header hashes into PSGI arrays
-    if ( is_hashref( $output->[1] ) ) {
+    if ( Ref::Util::is_hashref( $output->[1] ) ) {
         $output->[1] = [
             map {
                 my $k = $_;
                 my $v = $output->[1]->{ $_ };
                 # if the value is an array
-                is_arrayref( $v )
+                Ref::Util::is_arrayref( $v )
                     ? (map { $k, $_ } @$v) # give us all the permutations
                     : ($k, $v);            # otherwise, just get the k/v pair
             } keys $output->[1]->%*
