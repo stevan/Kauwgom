@@ -13,7 +13,6 @@ use JavaScript::Duktape::XS;
 
 use Kauwgom::Host;
 use Kauwgom::Host::Channel;
-use Kauwgom::Application;
 
 our $VERSION = '0.01';
 
@@ -32,16 +31,11 @@ use slots (
 
 sub BUILDARGS ($class, @args) {
     my $args = $class->SUPER::BUILDARGS( @args );
-    Carp::confess('You must provide an `application_path`')
-        unless $args->{application_path};
-    Carp::confess('You must provide an `tmpl_data_provider`')
-        unless $args->{tmpl_data_provider};
+    $args->{_app} = delete $args->{app} || die 'You must pass in an `app` to run';
     return $args;
 }
 
 sub BUILD ($self, $params) {
-    # pull the app together ...
-    $self->{_app} = Kauwgom::Application->new( $params->%{qw[ application_path tmpl_data_provider ]} );
     ## setup duktape ...
     $self->{_duk} = JavaScript::Duktape::XS->new({ gather_stats => 1 });
 }
