@@ -6,6 +6,8 @@ use warnings;
 use Test::More;
 
 BEGIN {
+    use_ok('Vislijn::Reference');
+
     use_ok('Ijsstokje::Page');
     use_ok('Ijsstokje::Page::Store');
     use_ok('Ijsstokje::Page::Store::Provider');
@@ -23,12 +25,12 @@ subtest '... testing a simple page' => sub {
                     name       => 'Foo',
                     handler    => 'Some::Class::Foo',
                     parameters => {
-                        'request.query:foo'               => 'bar',
-                        'request.query:bar'               => 'foo',
-                        'request.header:Content-Type'     => 'return_type',
-                        'session:user.name'               => 'user',
-                        'config:is.allowed'               => 'is_allowed',
-                        'experiment:test_show_extra_data' => 'show_extra_data',
+                        'bar'             => Vislijn::Reference->new( name => 'request.query',  args => [ 'foo' ] ),
+                        'foo'             => Vislijn::Reference->new( name => 'request.query',  args => [ 'bar' ] ),
+                        'return_type'     => Vislijn::Reference->new( name => 'request.header', args => [ 'Content-Type' ] ),
+                        'user'            => Vislijn::Reference->new( name => 'session',        args => [ 'user.name' ] ),
+                        'is_allowed'      => Vislijn::Reference->new( name => 'config',         args => [ 'is.allowed' ] ),
+                        'show_extra_data' => Vislijn::Reference->new( name => 'experiment',     args => [ 'test_show_extra_data' ] ),
                     }
                 ),
                 Ijsstokje::Page::Store::Provider->new(
@@ -36,14 +38,30 @@ subtest '... testing a simple page' => sub {
                     name       => 'Bar',
                     handler    => 'Some::Class::Bar',
                     parameters => {
-                        'session:user.name' => 'user',
+                        'user' => Vislijn::Reference->new( name => 'session', args => [ 'user.name' ] ),
                     }
                 )
             ]
         ),
         components => [
-            Ijsstokje::Page::Component->new( type => 'svelte', name => 'Foo-Card.js', env => 'server' ),
-            Ijsstokje::Page::Component->new( type => 'svelte', name => 'Modal.js', env => 'client' ),
+            Ijsstokje::Page::Component->new(
+                type       => 'svelte',
+                name       => 'Foo-Card.js',
+                env        => 'server',
+                depends_on => [
+                    Vislijn::Reference->new( name => 'store',  args => [ 'Foo' ] ),
+                    Vislijn::Reference->new( name => 'store',  args => [ 'Baz' ] ),
+                    Vislijn::Reference->new( name => 'config', args => [ 'card.defaults' ] ),
+                ]
+            ),
+            Ijsstokje::Page::Component->new(
+                type       => 'svelte',
+                name       => 'Modal.js',
+                env        => 'client',
+                depends_on => [
+                    Vislijn::Reference->new( name => 'store',  args => [ 'Baz' ] ),
+                ]
+            ),
         ],
         body => Ijsstokje::Page::Body->new(
             layout => 'two-column',

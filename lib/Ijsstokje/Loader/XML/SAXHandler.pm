@@ -1,8 +1,10 @@
-package Ijsstokje::XML::SAX::Handler;
+package Ijsstokje::Loader::XML::SAXHandler;
 
 use v5.24;
 use warnings;
 use experimental 'signatures', 'postderef';
+
+use Vislijn::Reference;
 
 use Ijsstokje::Page;
 use Ijsstokje::Page::Store;
@@ -74,7 +76,12 @@ sub _inflate_page ($self, $data) {
 
                 my %parameters;
                 foreach my $param ( $provider->{children}->@* ) {
-                    $parameters{ $param->{attributes}->{'from'} } = $param->{attributes}->{'to'};
+                    # TODO: support multi-args - SL
+                    my ($name, $arg) = $param->{attributes}->{'from'} =~ /^(.*)\:(.*)/;
+                    $parameters{ $param->{attributes}->{'to'} } = Vislijn::Reference->new(
+                        name => $name,
+                        args => [ $arg ]
+                    );
                 }
 
                 push @providers => Ijsstokje::Page::Store::Provider->new(
@@ -90,7 +97,13 @@ sub _inflate_page ($self, $data) {
         elsif ( $c->{name} eq 'component' ) {
             push @components => Ijsstokje::Page::Component->new(
                 $c->{attributes}->%{qw[ type src env ]},
-                depends_on => [ map $_->{attributes}->{'on'}, $c->{children}->@* ]
+                depends_on => [
+                    map {
+                        # TODO: support multi-args - SL
+                        my ($name, $arg) = $_->{attributes}->{'on'} =~ /^(.*)\:(.*)/;
+                        Vislijn::Reference->new( name => $name, args => [ $arg ] );
+                    } $c->{children}->@*
+                ]
             );
         }
         elsif ( $c->{name} eq 'body' ) {

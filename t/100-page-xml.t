@@ -5,14 +5,13 @@ use warnings;
 
 use Test::More;
 
-use XML::SAX::Expat;
-use Ijsstokje::XML::SAX::Handler;
+BEGIN {
+    use_ok('Ijsstokje::Loader::XML');
+}
 
 subtest '... testing page' => sub {
 
-	my $x = XML::SAX::Expat->new( Handler => Ijsstokje::XML::SAX::Handler->new );
-
-	my $p = $x->parse_file('root/app.xml');
+    my $p = Ijsstokje::Loader::XML->new->parse_file('root/app.xml');
 	isa_ok($p, 'Ijsstokje::Page');
 
 	subtest '... testing the store' => sub {
@@ -39,12 +38,12 @@ subtest '... testing page' => sub {
 		my ($c) = $p->server_components;
 		isa_ok($c, 'Ijsstokje::Page::Component');
 
-		is($c->type, 'svelte', '... got the expected type');      
-		is($c->src, 'Foo-Card.js', '... got the expected src');       
-		is($c->env, 'server', '... got the expected env');       
+		is($c->type, 'svelte', '... got the expected type');
+		is($c->src, 'Foo-Card.js', '... got the expected src');
+		is($c->env, 'server', '... got the expected env');
 		is_deeply(
-			$c->depends_on, 
-			[ 'store:Foo', 'store:Baz', 'config:card.defaults' ], 
+			$c->depends_on,
+			[ map Vislijn::Reference->new( $_ ), 'store:Foo', 'store:Baz', 'config:card.defaults' ],
 			'... got the expected depends_on'
 		);
 	};
@@ -55,11 +54,11 @@ subtest '... testing page' => sub {
 		my ($c) = $p->client_components;
 		isa_ok($c, 'Ijsstokje::Page::Component');
 
-		is($c->type, 'svelte', '... got the expected type');      
-		is($c->src, 'Modal.js', '... got the expected src');       
-		is($c->env, 'client', '... got the expected env');       
-		is_deeply($c->depends_on, [ 'store:Baz' ],  '... got the expected depends_on');
-	};	
+		is($c->type, 'svelte', '... got the expected type');
+		is($c->src, 'Modal.js', '... got the expected src');
+		is($c->env, 'client', '... got the expected env');
+		is_deeply($c->depends_on, [ Vislijn::Reference->new( 'store:Baz' ) ],  '... got the expected depends_on');
+	};
 
 	subtest '... testing page body' => sub {
 		my $b = $p->body;
@@ -68,7 +67,7 @@ subtest '... testing page' => sub {
 		is($b->layout, 'extranet-two-column', '... got the expected layout');
 		is($b->header, 'extranet-header', '... got the expected header');
 		is($b->footer, 'extranet-footer', '... got the expected footer');
-	};	
+	};
 
 };
 
