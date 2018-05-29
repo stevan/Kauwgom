@@ -1,4 +1,4 @@
-package Vislijn::Reference;
+package Vislijn::Ref;
 
 use v5.24;
 use warnings;

@@ -6,7 +6,7 @@ use warnings;
 use Test::More;
 
 BEGIN {
-    use_ok('Vislijn::Reference');
+    use_ok('Vislijn::Ref');
 
     use_ok('Ijsstokje::Page');
     use_ok('Ijsstokje::Page::Store');
@@ -31,12 +31,12 @@ sub _load_from_perl {
                     name       => 'Foo',
                     handler    => 'Some::Class::Foo',
                     parameters => {
-                        'bar'             => Vislijn::Reference->new( name => 'request.query',  args => [ 'foo' ] ),
-                        'foo'             => Vislijn::Reference->new( name => 'request.query',  args => [ 'bar' ] ),
-                        'return_type'     => Vislijn::Reference->new( name => 'request.header', args => [ 'Content-Type' ] ),
-                        'user'            => Vislijn::Reference->new( name => 'session',        args => [ 'user.name' ] ),
-                        'is_allowed'      => Vislijn::Reference->new( name => 'config',         args => [ 'is.allowed' ] ),
-                        'show_extra_data' => Vislijn::Reference->new( name => 'experiment',     args => [ 'test_show_extra_data' ] ),
+                        'bar'             => Vislijn::Ref->new( name => 'request.query',  args => [ 'foo' ] ),
+                        'foo'             => Vislijn::Ref->new( name => 'request.query',  args => [ 'bar' ] ),
+                        'return_type'     => Vislijn::Ref->new( name => 'request.header', args => [ 'Content-Type' ] ),
+                        'user'            => Vislijn::Ref->new( name => 'session',        args => [ 'user.name' ] ),
+                        'is_allowed'      => Vislijn::Ref->new( name => 'config',         args => [ 'is.allowed' ] ),
+                        'show_extra_data' => Vislijn::Ref->new( name => 'experiment',     args => [ 'test_show_extra_data' ] ),
                     }
                 ),
                 Ijsstokje::Page::Store::Provider->new(
@@ -44,7 +44,7 @@ sub _load_from_perl {
                     name       => 'Baz',
                     handler    => 'Some::Class::Baz',
                     parameters => {
-                        'user' => Vislijn::Reference->new( name => 'session', args => [ 'user.name' ] ),
+                        'user' => Vislijn::Ref->new( name => 'session', args => [ 'user.name' ] ),
                     }
                 )
             ]
@@ -55,9 +55,9 @@ sub _load_from_perl {
                 src        => 'Foo-Card.js',
                 env        => 'server',
                 depends_on => [
-                    Vislijn::Reference->new( name => 'store',  args => [ 'Foo' ] ),
-                    Vislijn::Reference->new( name => 'store',  args => [ 'Baz' ] ),
-                    Vislijn::Reference->new( name => 'config', args => [ 'card.defaults' ] ),
+                    Vislijn::Ref->new( name => 'store',  args => [ 'Foo' ] ),
+                    Vislijn::Ref->new( name => 'store',  args => [ 'Baz' ] ),
+                    Vislijn::Ref->new( name => 'config', args => [ 'card.defaults' ] ),
                 ]
             ),
             Ijsstokje::Page::Component->new(
@@ -65,7 +65,7 @@ sub _load_from_perl {
                 src        => 'Modal.js',
                 env        => 'client',
                 depends_on => [
-                    Vislijn::Reference->new( name => 'store',  args => [ 'Baz' ] ),
+                    Vislijn::Ref->new( name => 'store',  args => [ 'Baz' ] ),
                 ]
             ),
         ],
@@ -111,7 +111,7 @@ foreach my $p ( _load_from_xml(), _load_from_perl() ) {
 			is($c->env, 'server', '... got the expected env');
 			is_deeply(
 				$c->depends_on,
-				[ map Vislijn::Reference->new( $_ ), 'store:Foo', 'store:Baz', 'config:card.defaults' ],
+				[ map Vislijn::Ref->new( $_ ), 'store:Foo', 'store:Baz', 'config:card.defaults' ],
 				'... got the expected depends_on'
 			);
 		};
@@ -125,7 +125,7 @@ foreach my $p ( _load_from_xml(), _load_from_perl() ) {
 			is($c->type, 'svelte', '... got the expected type');
 			is($c->src, 'Modal.js', '... got the expected src');
 			is($c->env, 'client', '... got the expected env');
-			is_deeply($c->depends_on, [ Vislijn::Reference->new( 'store:Baz' ) ],  '... got the expected depends_on');
+			is_deeply($c->depends_on, [ Vislijn::Ref->new( 'store:Baz' ) ],  '... got the expected depends_on');
 		};
 
 		subtest '... testing page body' => sub {

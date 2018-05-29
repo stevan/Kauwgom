@@ -4,7 +4,7 @@ use v5.24;
 use warnings;
 use experimental 'signatures', 'postderef';
 
-use Vislijn::Reference;
+use Vislijn::Ref;
 
 use Ijsstokje::Page;
 use Ijsstokje::Page::Store;
@@ -78,7 +78,7 @@ sub _inflate_page ($self, $data) {
                 foreach my $param ( $provider->{children}->@* ) {
                     # TODO: support multi-args - SL
                     my ($name, $arg) = $param->{attributes}->{'from'} =~ /^(.*)\:(.*)/;
-                    $parameters{ $param->{attributes}->{'to'} } = Vislijn::Reference->new(
+                    $parameters{ $param->{attributes}->{'to'} } = Vislijn::Ref->new(
                         name => $name,
                         args => [ $arg ]
                     );
@@ -101,7 +101,7 @@ sub _inflate_page ($self, $data) {
                     map {
                         # TODO: support multi-args - SL
                         my ($name, $arg) = $_->{attributes}->{'on'} =~ /^(.*)\:(.*)/;
-                        Vislijn::Reference->new( name => $name, args => [ $arg ] );
+                        Vislijn::Ref->new( name => $name, args => [ $arg ] );
                     } $c->{children}->@*
                 ]
             );
