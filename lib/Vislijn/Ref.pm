@@ -28,3 +28,17 @@ sub to_string ($self) { join ':' => $self->%{qw[ name args ]} }
 __PACKAGE__;
 
 __END__
+
+=pod
+
+=head1 SYNOPSIS
+
+  my $context  = ...;
+  my $resolver = ...;
+
+  my $name_ref    = Vislijn::Ref->new( 'request.query:name' );
+  my $page_id_ref = Vislijn::Ref->new( 'request.query:page_id' );
+
+  my ($page_id, $name) = $resolver->resolve( $context, ( $page_id_ref, $name_ref ) );
+
+=cut
