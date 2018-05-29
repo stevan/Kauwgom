@@ -76,11 +76,8 @@ sub _inflate_page ($self, $data) {
 
                 my %parameters;
                 foreach my $param ( $provider->{children}->@* ) {
-                    # TODO: support multi-args - SL
-                    my ($name, $arg) = $param->{attributes}->{'from'} =~ /^(.*)\:(.*)/;
                     $parameters{ $param->{attributes}->{'to'} } = Vislijn::Ref->new(
-                        name => $name,
-                        args => [ $arg ]
+                        $param->{attributes}->{'from'}
                     );
                 }
 
@@ -98,11 +95,7 @@ sub _inflate_page ($self, $data) {
             push @components => Ijsstokje::Page::Component->new(
                 $c->{attributes}->%{qw[ type src env ]},
                 depends_on => [
-                    map {
-                        # TODO: support multi-args - SL
-                        my ($name, $arg) = $_->{attributes}->{'on'} =~ /^(.*)\:(.*)/;
-                        Vislijn::Ref->new( name => $name, args => [ $arg ] );
-                    } $c->{children}->@*
+                    map Vislijn::Ref->new( $_->{attributes}->{'on'} ), $c->{children}->@*
                 ]
             );
         }

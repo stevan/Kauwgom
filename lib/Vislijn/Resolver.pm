@@ -28,9 +28,9 @@ sub resolve ($self, $ctx, $refs) {
 
     my @results;
     foreach my $ref ( $refs->@* ) {
-        push @results => $resolvers->{ $ref->name }->(
+        push @results => $resolvers->{ $ref->source }->(
             $ctx,
-            $ref->args->@*
+            $ref->has_parameter ? $ref->get_parameter : ()
         );
     }
 
@@ -45,14 +45,16 @@ __END__
 
 =head1 SYNOPSIS
 
-  my $context  = ...;
   my $resolver = Vislijn::Resolver->new(
-      'request
+      hash => sub ($ctx, $key) { $ctx->{ $key } },
   );
 
-  my $name_ref    = Vislijn::Ref->new( 'request.query:name' );
-  my $page_id_ref = Vislijn::Ref->new( 'request.query:page_id' );
-
-  my ($page_id, $name) = $resolver->resolve( $context, [ $page_id_ref, $name_ref ] )->@*;
+  my ($foo, $bar) = $resolver->resolve(
+      { foo => 10, bar => 20 },
+      [
+          Vislijn::Ref->new( 'hash:foo' ),
+          Vislijn::Ref->new( 'hash:bar' ),
+      ]
+  )->@*;
 
 =cut

@@ -12,12 +12,12 @@ BEGIN {
     use_ok('Ijsstokje::Page::Store');
     use_ok('Ijsstokje::Page::Store::Provider');
     use_ok('Ijsstokje::Page::Component');
-    use_ok('Ijsstokje::Page::Body'); 
+    use_ok('Ijsstokje::Page::Body');
 
-	use_ok('Ijsstokje::Loader::XML');    
+	use_ok('Ijsstokje::Loader::XML');
 }
 
-sub _load_from_xml { 
+sub _load_from_xml {
 	my $XML = do { local $/; <DATA> };
 	Ijsstokje::Loader::XML->new->parse_string( $XML );
 }
@@ -31,12 +31,12 @@ sub _load_from_perl {
                     name       => 'Foo',
                     handler    => 'Some::Class::Foo',
                     parameters => {
-                        'bar'             => Vislijn::Ref->new( name => 'request.query',  args => [ 'foo' ] ),
-                        'foo'             => Vislijn::Ref->new( name => 'request.query',  args => [ 'bar' ] ),
-                        'return_type'     => Vislijn::Ref->new( name => 'request.header', args => [ 'Content-Type' ] ),
-                        'user'            => Vislijn::Ref->new( name => 'session',        args => [ 'user.name' ] ),
-                        'is_allowed'      => Vislijn::Ref->new( name => 'config',         args => [ 'is.allowed' ] ),
-                        'show_extra_data' => Vislijn::Ref->new( name => 'experiment',     args => [ 'test_show_extra_data' ] ),
+                        'bar'             => Vislijn::Ref->new( 'request.query:foo' ),
+                        'foo'             => Vislijn::Ref->new( 'request.query:bar' ),
+                        'return_type'     => Vislijn::Ref->new( 'request.header:Content-Type' ),
+                        'user'            => Vislijn::Ref->new( 'session:user.name' ),
+                        'is_allowed'      => Vislijn::Ref->new( 'config:is.allowed' ),
+                        'show_extra_data' => Vislijn::Ref->new( 'experiment:test_show_extra_data' ),
                     }
                 ),
                 Ijsstokje::Page::Store::Provider->new(
@@ -44,7 +44,7 @@ sub _load_from_perl {
                     name       => 'Baz',
                     handler    => 'Some::Class::Baz',
                     parameters => {
-                        'user' => Vislijn::Ref->new( name => 'session', args => [ 'user.name' ] ),
+                        'user' => Vislijn::Ref->new( 'session:user.name' ),
                     }
                 )
             ]
@@ -55,9 +55,9 @@ sub _load_from_perl {
                 src        => 'Foo-Card.js',
                 env        => 'server',
                 depends_on => [
-                    Vislijn::Ref->new( name => 'store',  args => [ 'Foo' ] ),
-                    Vislijn::Ref->new( name => 'store',  args => [ 'Baz' ] ),
-                    Vislijn::Ref->new( name => 'config', args => [ 'card.defaults' ] ),
+                    Vislijn::Ref->new( 'store:Foo' ),
+                    Vislijn::Ref->new( 'store:Baz' ),
+                    Vislijn::Ref->new( 'config:card.defaults' ),
                 ]
             ),
             Ijsstokje::Page::Component->new(
@@ -65,7 +65,7 @@ sub _load_from_perl {
                 src        => 'Modal.js',
                 env        => 'client',
                 depends_on => [
-                    Vislijn::Ref->new( name => 'store',  args => [ 'Baz' ] ),
+                    Vislijn::Ref->new( 'store:Baz' ),
                 ]
             ),
         ],
@@ -105,6 +105,8 @@ foreach my $p ( _load_from_xml(), _load_from_perl() ) {
 
 			my ($c) = $p->server_components;
 			isa_ok($c, 'Ijsstokje::Page::Component');
+
+            #use Data::Dumper; warn Dumper $c;
 
 			is($c->type, 'svelte', '... got the expected type');
 			is($c->src, 'Foo-Card.js', '... got the expected src');

@@ -8,22 +8,24 @@ our $VERSION = '0.01';
 
 use parent 'UNIVERSAL::Object::Immutable';
 use slots (
-    name => sub { die 'You must specify a `name`' },
-    args => sub { die 'You must specify `args`' },
+    _source => sub {},
+    _param  => sub {},
 );
 
 sub BUILDARGS ($class, @args) {
     if ( scalar @args == 1 && not ref $args[0] ) {
-        my ($name, $arg) = split /\:/ => $args[0];
-        return { name => $name, args => [ $arg ] };
+        my ($source, $param) = split /\:/ => $args[0];
+        return { _source => $source, _param => $param };
     }
     return $class->SUPER::BUILDARGS( @args );
 }
 
-sub name ($self) { $self->{name} }
-sub args ($self) { $self->{args} }
+sub source ($self) { $self->{_source} }
 
-sub to_string ($self) { join ':' => $self->%{qw[ name args ]} }
+sub has_parameter ($self) { defined $self->{_param} }
+sub get_parameter ($self) {         $self->{_param} }
+
+sub to_string ($self) { join ':' => $self->{_source}, $self->{_param} // () }
 
 __PACKAGE__;
 
@@ -39,6 +41,6 @@ __END__
   my $name_ref    = Vislijn::Ref->new( 'request.query:name' );
   my $page_id_ref = Vislijn::Ref->new( 'request.query:page_id' );
 
-  my ($page_id, $name) = $resolver->resolve( $context, ( $page_id_ref, $name_ref ) );
+  my ($page_id, $name) = $resolver->resolve( $context, [ $page_id_ref, $name_ref ] )->@*;
 
 =cut
