@@ -21,8 +21,8 @@ sub BUILD ($self, $) {
     );
 }
 
-sub parse_file   ($self, $path) { $self->{_sax}->parse_file( $path ) }
-sub parse_string ($self, $path) { $self->{_sax}->parse_string( $path ) }
+sub parse_file   ($self, $path)   { $self->{_sax}->parse_file( $path )     }
+sub parse_string ($self, $string) { $self->{_sax}->parse_string( $string ) }
 
 __PACKAGE__;
 
