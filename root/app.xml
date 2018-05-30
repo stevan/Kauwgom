@@ -1,0 +1,76 @@
+<!--
+Micro-formats:
+	perl/Some::Class::Foo - platform / provider-identifier
+	request.query:foo     - data-provider : key
+
+-->
+<page>
+
+	<store>
+		<tmpl-data provider="perl/Some::Class::Foo" name="Foo">
+			<param from="request.query:foo"               to="bar" />
+			<param from="request.query:bar"               to="foo" />
+			<param from="request.header:Content-Type"     to="return_type" />
+			<param from="session:user.name"               to="user" />
+			<param from="config:is.allowed"               to="is_allowed" />
+			<param from="experiment:test_show_extra_data" to="show_extra_data" />
+		</tmpl-data>
+		<tmpl-data provider="perl/Some::Class::Baz" name="Baz">
+			<param from="session:user.name" to="user" />
+		</tmpl-data>
+	</store>
+
+	<component type="svelte" src="Foo-Card.js" env="server">
+		<depends on="store:Foo" />
+		<depends on="store:Baz" />
+		<depends on="config:card.defaults" />
+	</component>
+
+	<component type="svelte" src="Modal.js" env="client">
+		<depends on="store:Baz" />
+	</component>
+
+	<body
+        layout="extranet-two-column"
+		header="extranet-header"
+		footer="extranet-footer" />
+
+</page>
+<!--
+
+# Build Steps
+
+Build MANIFEST of
+	All components for server
+	All components for client
+	All data providers
+
+Call `$build-tool` with the details in the MANIFEST
+
+Which does the following:
+	Server
+		Run `$thing` for each server:component
+			extract data provider <-> component mapping
+		Run `rollup` for each server:component
+			extract/transform JS
+	Client
+		Run `webpack` for each server:component
+			extract/transform CSS
+		Run `webpack` for each client:component
+			extract/transform CSS
+		Run `webpack` for each client:component
+			extract/transform js
+
+Which results in:
+	CSS that can go to static pipeline for CDN delivery to client
+	JS that can go to static pipeline for CDN delivery to client
+	JS that can be run on the server side to render the page
+	JSON file that maps components to data providers
+
+At Server Runtime:
+	foreach server:component
+		consult data provider mapping
+		pass in data from provider
+		render(data)
+
+-->

@@ -4,6 +4,9 @@ use v5.24;
 use warnings;
 use experimental 'signatures', 'postderef';
 
+use Carp         ();
+use Scalar::Util ();
+
 our $VERSION = '0.01';
 
 use parent 'UNIVERSAL::Object::Immutable';
@@ -13,10 +16,20 @@ use slots (
 );
 
 sub BUILDARGS ($class, @args) {
-    my $args = $class->SUPER::BUILDARGS( @args );
-    $args->{_input}  = delete $args->{input}  || die 'You must supply an input channel';
-    $args->{_output} = delete $args->{output} || die 'You must supply an output channel';
-    return $args;
+    my $args   = $class->SUPER::BUILDARGS( @args );
+
+    my $input  = delete $args->{input}  || Carp::confess('You must supply an input channel');
+    my $output = delete $args->{output} || Carp::confess('You must supply an output channel');
+
+    Carp::confess('Supplied input channel must be `Kauwgom::Host::Channel`')
+        unless Scalar::Util::blessed( $input )
+            && $input->isa('Kauwgom::Host::Channel');
+
+    Carp::confess('Supplied output channel must be `Kauwgom::Host::Channel`')
+        unless Scalar::Util::blessed( $output )
+            && $output->isa('Kauwgom::Host::Channel');
+
+    return { _input => $input, _output => $output };
 }
 
 sub name    { 'perl/Kauwgom' }

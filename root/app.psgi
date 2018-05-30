@@ -5,11 +5,11 @@ use warnings;
 use experimental 'signatures';
 use FindBin;
 
-use Kauwgom;
+use Kauwgom::Application;
 
-Kauwgom->new(
-    application_path   => "$FindBin::Bin/app.js",
-    tmpl_data_provider => sub ($env) {
+Kauwgom::Application->new(
+    "$FindBin::Bin/app.js",
+    sub ($env) {
         return +{
             hello => $env->{PATH_INFO}
         }
