@@ -13,6 +13,8 @@ use slots (
     footer => sub {},
 );
 
+## add Type checking here
+
 sub layout ($self) { $self->{layout} }
 sub header ($self) { $self->{header} }
 sub footer ($self) { $self->{footer} }

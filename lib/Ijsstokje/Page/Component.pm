@@ -14,6 +14,8 @@ use slots (
     depends_on => sub { +[] }
 );
 
+## add Type checking here
+
 sub type       ($self) { $self->{type}       }
 sub src        ($self) { $self->{src}        }
 sub env        ($self) { $self->{env}        }

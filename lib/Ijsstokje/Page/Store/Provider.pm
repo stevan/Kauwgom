@@ -13,6 +13,8 @@ use slots (
     parameters   => sub { +{} },
 );
 
+## add Type checking here
+
 sub type    ($self) { $self->{type}    }
 sub handler ($self) { $self->{handler} }
 
