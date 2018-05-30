@@ -25,29 +25,25 @@ sub _load_from_xml {
 sub _load_from_perl {
 	Ijsstokje::Page->new(
         store => Ijsstokje::Page::Store->new(
-            providers => [
-                Ijsstokje::Page::Store::Provider->new(
-                    type       => 'perl',
-                    name       => 'Foo',
-                    handler    => 'Some::Class::Foo',
-                    parameters => {
-                        'bar'             => Vislijn::Ref->new( 'request.query:foo' ),
-                        'foo'             => Vislijn::Ref->new( 'request.query:bar' ),
-                        'return_type'     => Vislijn::Ref->new( 'request.header:Content-Type' ),
-                        'user'            => Vislijn::Ref->new( 'session:user.name' ),
-                        'is_allowed'      => Vislijn::Ref->new( 'config:is.allowed' ),
-                        'show_extra_data' => Vislijn::Ref->new( 'experiment:test_show_extra_data' ),
-                    }
-                ),
-                Ijsstokje::Page::Store::Provider->new(
-                    type       => 'perl',
-                    name       => 'Baz',
-                    handler    => 'Some::Class::Baz',
-                    parameters => {
-                        'user' => Vislijn::Ref->new( 'session:user.name' ),
-                    }
-                )
-            ]
+            Foo => Ijsstokje::Page::Store::Provider->new(
+                type       => 'perl',
+                handler    => 'Some::Class::Foo',
+                parameters => {
+                    bar             => Vislijn::Ref->new( 'request.query:foo' ),
+                    foo             => Vislijn::Ref->new( 'request.query:bar' ),
+                    return_type     => Vislijn::Ref->new( 'request.header:Content-Type' ),
+                    user            => Vislijn::Ref->new( 'session:user.name' ),
+                    is_allowed      => Vislijn::Ref->new( 'config:is.allowed' ),
+                    show_extra_data => Vislijn::Ref->new( 'experiment:test_show_extra_data' ),
+                }
+            ),
+            Baz => Ijsstokje::Page::Store::Provider->new(
+                type       => 'perl',
+                handler    => 'Some::Class::Baz',
+                parameters => {
+                    user => Vislijn::Ref->new( 'session:user.name' ),
+                }
+            )
         ),
         components => [
             Ijsstokje::Page::Component->new(
@@ -93,7 +89,6 @@ foreach my $p ( _load_from_xml(), _load_from_perl() ) {
 				my $provider = $s->get_provider_for('Foo');
 				isa_ok($provider, 'Ijsstokje::Page::Store::Provider');
 
-				is($provider->name, 'Foo', '... got the name we expected');
 				is($provider->type, 'perl', '... got the type we expected');
 				is($provider->handler, 'Some::Class::Foo', '... got the handler we expected');
 			};
@@ -148,7 +143,7 @@ __DATA__
 <page>
 
 	<store>
-		<tmpl-data provider="perl/Some::Class::Foo" name="Foo">
+		<tmpl-data name="Foo" provider="perl/Some::Class::Foo">
 			<param from="request.query:foo"               to="bar" />
 			<param from="request.query:bar"               to="foo" />
 			<param from="request.header:Content-Type"     to="return_type" />
@@ -156,7 +151,7 @@ __DATA__
 			<param from="config:is.allowed"               to="is_allowed" />
 			<param from="experiment:test_show_extra_data" to="show_extra_data" />
 		</tmpl-data>
-		<tmpl-data provider="perl/Some::Class::Baz" name="Baz">
+		<tmpl-data name="Baz" provider="perl/Some::Class::Baz">
 			<param from="session:user.name" to="user" />
 		</tmpl-data>
 	</store>

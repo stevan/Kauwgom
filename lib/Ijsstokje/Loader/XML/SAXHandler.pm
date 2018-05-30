@@ -68,7 +68,7 @@ sub _inflate_page ($self, $data) {
     foreach my $c ( $data->{children}->@* ) {
         if ( $c->{name} eq 'store' ) {
 
-            my @providers;
+            my %providers;
             foreach my $provider ( $c->{children}->@* ) {
 
                 my $name             = $provider->{attributes}->{'name'};
@@ -81,7 +81,7 @@ sub _inflate_page ($self, $data) {
                     );
                 }
 
-                push @providers => Ijsstokje::Page::Store::Provider->new(
+                $providers{ $name } = Ijsstokje::Page::Store::Provider->new(
                     type       => $type,
                     handler    => $handler,
                     name       => $name,
@@ -89,7 +89,7 @@ sub _inflate_page ($self, $data) {
                 )
             }
 
-            $store = Ijsstokje::Page::Store->new( providers => \@providers );
+            $store = Ijsstokje::Page::Store->new( \%providers );
         }
         elsif ( $c->{name} eq 'component' ) {
             push @components => Ijsstokje::Page::Component->new(

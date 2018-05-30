@@ -4,27 +4,30 @@ use v5.24;
 use warnings;
 use experimental 'signatures', 'postderef';
 
+use Carp         ();
+use Scalar::Util ();
+
 our $VERSION = '0.01';
 
 use parent 'UNIVERSAL::Object::Immutable';
 use slots (
-    _provider_map => sub { +{} }
+    _providers => sub { +{} }
 );
 
-sub BUILD ($self, $params) {
-    # TODO
-    # type checks and such ...
-    # - SL
+sub BUILDARGS ($class, @args) {
+    my $providers = $class->SUPER::BUILDARGS( @args );
 
-    my $providers = $params->{providers};
-
-    foreach my $provider ( $providers->@* ) {
-        $self->{_provider_map}->{ $provider->name } = $provider;
+    foreach my $p ( values $providers->%* ) {
+        Carp::confess('providers must be CODE references, not ['.ref($p).']')
+            unless Scalar::Util::blessed( $p )
+                && $p->isa('Ijsstokje::Page::Store::Provider');
     }
+
+    return { _providers => $providers };
 }
 
-sub has_provider_for ($self, $name) { exists $self->{_provider_map}->{ $name } }
-sub get_provider_for ($self, $name) {        $self->{_provider_map}->{ $name } }
+sub has_provider_for ($self, $name) { exists $self->{_providers}->{ $name } }
+sub get_provider_for ($self, $name) {        $self->{_providers}->{ $name } }
 
 __PACKAGE__;
 
