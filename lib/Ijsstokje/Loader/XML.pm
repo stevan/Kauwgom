@@ -15,9 +15,10 @@ use slots (
     _sax => sub {}
 );
 
-sub BUILD ($self, $) {
+sub BUILD ($self, $params) {
     $self->{_sax} = XML::SAX::Expat->new(
-        Handler => Ijsstokje::Loader::XML::SAXHandler->new
+        Handler => Ijsstokje::Loader::XML::SAXHandler->new,
+        %$params
     );
 }
 
@@ -27,3 +28,17 @@ sub parse_string ($self, $string) { $self->{_sax}->parse_string( $string ) }
 __PACKAGE__;
 
 __END__
+
+=pod
+
+=head1 METHODS
+
+=head2 C<new( %params )>
+
+The C<new> method will accept C<%params> and will pass them onto
+the L<XML::SAX::Expat> constructor. This can be used for passing
+additional parameters to L<XML::SAX::Expat> as well as to override
+the default C<Handler> (L<Ijsstokje::Loader::XML::SAXHandler>) that
+we provide.
+
+=cut
