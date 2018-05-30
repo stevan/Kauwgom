@@ -4,6 +4,9 @@ use v5.24;
 use warnings;
 use experimental 'signatures', 'postderef';
 
+use Carp      ();
+use Ref::Util ();
+
 our $VERSION = '0.01';
 
 use parent 'UNIVERSAL::Object::Immutable';
@@ -13,6 +16,12 @@ use slots (
 
 sub BUILDARGS ($class, @args) {
     my $resolvers = $class->SUPER::BUILDARGS( @args );
+
+    foreach my $c ( values $resolvers->%* ) {
+        Carp::confess('Resolvers must be CODE references, not ['.ref($c).']')
+            unless Ref::Util::is_coderef( $c );
+    }
+
     return { _resolvers => $resolvers };
 }
 

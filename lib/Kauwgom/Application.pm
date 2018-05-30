@@ -31,14 +31,14 @@ use slots (
 );
 
 sub BUILDARGS ($class, @args) {
-    if ( scalar @args == 2 && Ref::Util::is_coderef( $args[1] ) ) {
-        $args[0] = Path::Tiny::path( $args[0] )
-            unless Scalar::Util::blessed( $args[0] )
-                && $args[0]->isa('Path::Tiny');
+    Carp::confess('Expected a path and tmpl_data callback, not ['.(join ', ' => @args).']')
+        unless scalar @args == 2 && Ref::Util::is_coderef( $args[1] );
 
-        return { _src => $args[0], _data_cb => $args[1] };
-    }
-    return $class->SUPER::BUILDARGS( @args );
+    $args[0] = Path::Tiny::path( $args[0] )
+        unless Scalar::Util::blessed( $args[0] )
+            && $args[0]->isa('Path::Tiny');
+
+    return { _src => $args[0], _data_cb => $args[1] };
 }
 
 sub BUILD ($self, $params) {

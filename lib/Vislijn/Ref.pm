@@ -4,6 +4,8 @@ use v5.24;
 use warnings;
 use experimental 'signatures', 'postderef';
 
+use Carp ();
+
 our $VERSION = '0.01';
 
 use parent 'UNIVERSAL::Object::Immutable';
@@ -13,11 +15,11 @@ use slots (
 );
 
 sub BUILDARGS ($class, @args) {
-    if ( scalar @args == 1 && not ref $args[0] ) {
-        my ($source, $param) = split /\:/ => $args[0];
-        return { _source => $source, _param => $param };
-    }
-    return $class->SUPER::BUILDARGS( @args );
+    Carp::confess('Expected a single argument to `new`, not ' . scalar @args)
+        unless scalar @args == 1 && not ref $args[0];
+
+    my ($source, $param) = split /\:/ => $args[0];
+    return { _source => $source, _param => $param };
 }
 
 sub source ($self) { $self->{_source} }
