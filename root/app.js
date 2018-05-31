@@ -1,6 +1,18 @@
 
 function main ( req, tmpl_data ) {
 
+    if ( req.requestMethod() != 'GET' ) {
+        var body = 'Method '+req.requestMethod()+' not allowed\n';
+        return req.newResponse(
+            405,
+            {
+                "Content-Type" : "text/plain",
+                "Content-Length" : body.length
+            },
+            [ body ]
+        );
+    }
+
     var json = JSON.stringify(
         {
             "ENV"       : req.getEnv(),
