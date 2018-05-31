@@ -37,9 +37,14 @@ sub resolve ($self, $ctx, $refs) {
 
     my @results;
     foreach my $ref ( $refs->@* ) {
-        push @results => $resolvers->{ $ref->source }->(
+        my $source = $resolvers->{ $ref->source }
+
+        Carp::confess('Unable to find the source ['.$ref->source.'] for ref: '.$ref->to_string)
+            unless $source;
+
+        push @results => $source->(
             $ctx,
-            $ref->has_parameter ? $ref->get_parameter : ()
+            $ref->has_parameter ? $ref->get_parameter : () # because signatures
         );
     }
 
