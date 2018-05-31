@@ -10,19 +10,15 @@ function main ( req, tmpl_data ) {
     );
 
     var resp = req.newResponse();
-
     resp.setHeaders({
-        "Content-Type"   : "text/plain",
+        "Content-Type"   : "application/json",
         "Content-Length" : json.length,
         "X-Kauwgom"      : Kauwgom.version,
         "X-Kauwgom-Host" : Kauwgom.Host.version,
         "X-Duktape"      : Duktape.version
     });
-
     resp.setBody([ json ]);
 
     return resp;
 }
-
-Kauwgom.execute( main );
 

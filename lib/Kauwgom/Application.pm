@@ -54,6 +54,7 @@ sub to_app {
 
 sub prepare_app ($self) {
 
+    my $src  = $self->{_src};
     my $duk  = $self->{_duk};
     my $host = $self->{_host};
 
@@ -65,6 +66,14 @@ sub prepare_app ($self) {
     $duk->set('Kauwgom.Host.version',          $host->version);
     $duk->set('Kauwgom.Host.channels.INPUT',   sub ()      { return $host->input->read           });
     $duk->set('Kauwgom.Host.channels.OUTPUT',  sub ($resp) { $host->output->write($resp); return });
+
+    ## eval the source
+    $duk->eval( $src->slurp_utf8 );
+
+    Carp::confess(
+        'Upon eval-ing the source we expected to find a `main` function '.
+        'in the root Javascript namespace, it does not appear to be present.'
+    ) unless $duk->exists('main');
 }
 
 sub call ($self, $env) {
@@ -72,7 +81,6 @@ sub call ($self, $env) {
     my $duk  = $self->{_duk};
     my $host = $self->{_host};
 
-    my $source    = $self->{_src};
     my $tmpl_data = $self->{_data_cb}->( $env );
 
     ## prepare the env
@@ -82,8 +90,8 @@ sub call ($self, $env) {
     $host->reset_channels;
     $host->input->write( { env => $prepared_env, tmpl_data => $tmpl_data } );
 
-    ## eval the source and run the application
-    $duk->eval( $source->slurp_utf8 );
+    ## run the application we eval-ed previously
+    $duk->eval( 'Kauwgom.__RUN_MAIN__()' );
 
     ## then fetch the output
     my $output = $host->output->read;
