@@ -14,6 +14,7 @@ use slots ( _state  => sub {} );
 sub BUILDARGS ($class, @args) {
     Carp::confess('Expected no arguments to `new`, got '.scalar @args)
         if @args;
+    return {};
 }
 
 sub read  ($self)         { return $self->{_state} }
