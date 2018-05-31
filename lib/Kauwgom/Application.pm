@@ -90,6 +90,21 @@ sub call ($self, $env) {
     $host->reset_channels;
     $host->input->write( { env => $prepared_env, tmpl_data => $tmpl_data } );
 
+    if ( $ENV{PLACK_ENV} eq 'development' ) {
+        # TODO:
+        # check the mod-time on the file,
+        # no need to reload unless actually
+        # changed.
+        # - SL
+
+        $duk->set('main', undef);
+        $duk->eval( $self->{_src}->slurp_utf8 );
+        Carp::confess(
+            'Upon eval-ing the source we expected to find a `main` function '.
+            'in the root Javascript namespace, it does not appear to be present.'
+        ) unless $duk->exists('main');
+    }
+
     ## run the application we eval-ed previously
     $duk->eval( 'Kauwgom.__RUN_MAIN__()' );
 
