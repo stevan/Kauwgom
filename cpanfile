@@ -17,5 +17,8 @@ requires 'Plack'             => 0;
 ## xml files
 requires 'XML::SAX::Expat'   => 0;
 
+## JS stuff
+requires 'JavaScript::Duktape::XS' => 0;
+
 ## testing
 requires 'Test::More'        => 0;
