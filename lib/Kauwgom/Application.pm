@@ -81,15 +81,6 @@ sub call ($self, $env) {
     my $duk  = $self->{_duk};
     my $host = $self->{_host};
 
-    my $tmpl_data = $self->{_data_cb}->( $env );
-
-    ## prepare the env
-    my $prepared_env = { $env->%{ grep !/^psgi(x)?\./, keys $env->%* } };
-
-    ## reset the channels and write new input ...
-    $host->reset_channels;
-    $host->input->write( { env => $prepared_env, tmpl_data => $tmpl_data } );
-
     if ( $ENV{PLACK_ENV} eq 'development' ) {
         # TODO:
         # check the mod-time on the file,
@@ -100,16 +91,34 @@ sub call ($self, $env) {
         $duk->set('main', undef);
         $duk->eval( $self->{_src}->slurp_utf8 );
         Carp::confess(
-            'Upon eval-ing the source we expected to find a `main` function '.
+            'Upon re-eval-ing the source we expected to find a `main` function '.
             'in the root Javascript namespace, it does not appear to be present.'
         ) unless $duk->exists('main');
     }
 
-    ## run the application we eval-ed previously
-    $duk->eval( 'Kauwgom.__RUN_MAIN__()' );
+    my $tmpl_data    = $self->{_data_cb}->( $env );
+    my $prepared_env = { $env->%{ grep !/^psgi(x)?\./, keys $env->%* } };
 
-    ## then fetch the output
-    my $output = $host->output->read;
+    my $output;
+    eval {
+
+        ## reset the channels and write new input ...
+        $host->reset_channels;
+        $host->input->write( { env => $prepared_env, tmpl_data => $tmpl_data } );
+
+        ## run the application we eval-ed previously
+        $duk->eval( 'Kauwgom.__RUN_MAIN__()' );
+
+        ## then fetch the output
+        $output = $host->output->read;
+
+        ## success!
+        1;
+    } or do {
+        $output //= [];
+        $output->[0] = 500;
+        $output->[2] = ["$@"];
+    };
 
     # convert any header hashes into PSGI arrays
     if ( Ref::Util::is_hashref( $output->[1] ) ) {
