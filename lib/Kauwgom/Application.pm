@@ -81,7 +81,7 @@ sub call ($self, $env) {
     my $duk  = $self->{_duk};
     my $host = $self->{_host};
 
-    if ( $ENV{PLACK_ENV} eq 'development' ) {
+    if ( ($ENV{PLACK_ENV} // '') eq 'development' ) {
         # TODO:
         # check the mod-time on the file,
         # no need to reload unless actually
