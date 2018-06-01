@@ -37,7 +37,7 @@ sub resolve ($self, $ctx, $refs) {
 
     my @results;
     foreach my $ref ( $refs->@* ) {
-        my $source = $resolvers->{ $ref->source }
+        my $source = $resolvers->{ $ref->source };
 
         Carp::confess('Unable to find the source ['.$ref->source.'] for ref: '.$ref->to_string)
             unless $source;
