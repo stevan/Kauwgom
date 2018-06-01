@@ -17,7 +17,7 @@ function main ( req, tmpl_data ) {
         {
             "ENV"       : req.getEnv(),
             "TMPL_DATA" : tmpl_data,
-            "Testing"   : [ 1, 2, 3 ].map(function (x) { return x + 10 })
+            "Test-Data" : [ 1, 2, 3 ].map(function (x) { return x + 10 })
         },
         null, 2
     );

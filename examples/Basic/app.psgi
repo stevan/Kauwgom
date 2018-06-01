@@ -11,7 +11,7 @@ Kauwgom::Application->new(
     "$FindBin::Bin/app.js",
     sub ($env) {
         return +{
-            hello => $env->{PATH_INFO}
+            env => $env
         }
     }
 )->to_app;
