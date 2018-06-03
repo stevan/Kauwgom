@@ -16,7 +16,7 @@ my $ctx = { foo => 10, bar => 20 };
 my @refs = (
     Vislijn::Ref->new( 'at:foo' ),
     Vislijn::Ref->new( 'at:bar' ),
-    Vislijn::Ref->new( 'keys' ),
+    Vislijn::Ref->new( 'keys'   ),
     Vislijn::Ref->new( 'at:baz' ),
     Vislijn::Ref->new( 'values' ),
 );
@@ -27,12 +27,24 @@ my $resolver = Vislijn::Resolver->new(
     at     => sub ($ctx, $name) {          $ctx->{ $name } },
 );
 
-my ($foo, $bar, $keys, $baz, $values) = $resolver->resolve( $ctx, \@refs )->@*;
-is($foo, 10, '... got the right value for my foo Ref');
-is($bar, 20, '... got the right value for my bar Ref');
-is($baz, undef, '... got the right (lack of) value for my bar Ref');
-is_deeply($keys, [qw[ bar foo ]], '... got the right keys');
-is_deeply($values, [10, 20], '... got the right keys');
+subtest '... testing single value resolve' => sub {
+    my $foo = $resolver->resolve( $ctx, $refs[0] );
+    is($foo, 10, '... got the right value for my foo Ref');
+};
+
+subtest '... testing single value resolve (with wantarray)' => sub {
+    my ($foo) = $resolver->resolve( $ctx, $refs[0] );
+    is($foo, 10, '... got the right value for my foo Ref');
+};
+
+subtest '... testing multi value resolve' => sub {
+    my ($foo, $bar, $keys, $baz, $values) = $resolver->resolve( $ctx, @refs );
+    is($foo, 10, '... got the right value for my foo Ref');
+    is($bar, 20, '... got the right value for my bar Ref');
+    is($baz, undef, '... got the right (lack of) value for my bar Ref');
+    is_deeply($keys, [qw[ bar foo ]], '... got the right keys');
+    is_deeply($values, [10, 20], '... got the right keys');
+};
 
 is_deeply(
     [ map $_->to_string, @refs ],

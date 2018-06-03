@@ -31,12 +31,12 @@ sub has_resolver ($self, $name)     { exists $self->{_resolvers}->{$name}      }
 
 sub list_available_resolvers ($self) { sort keys $self->{_resolvers}->%* }
 
-sub resolve ($self, $ctx, $refs) {
+sub resolve ($self, $ctx, @refs) {
 
     my $resolvers = $self->{_resolvers};
 
     my @results;
-    foreach my $ref ( $refs->@* ) {
+    foreach my $ref ( @refs ) {
         my $source = $resolvers->{ $ref->source };
 
         Carp::confess('Unable to find the source ['.$ref->source.'] for ref: '.$ref->to_string)
@@ -48,7 +48,7 @@ sub resolve ($self, $ctx, $refs) {
         );
     }
 
-    return \@results;
+    return scalar @refs == 1 && not(wantarray) ? $results[0] : @results;
 }
 
 __PACKAGE__
