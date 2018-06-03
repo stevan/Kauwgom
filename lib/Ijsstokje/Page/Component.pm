@@ -11,7 +11,7 @@ use slots (
     type       => sub {},
     src        => sub {},
     env        => sub {},
-    depends_on => sub { +[] }
+    parameters => sub { +[] }
 );
 
 ## add Type checking here
@@ -19,7 +19,8 @@ use slots (
 sub type       ($self) { $self->{type}       }
 sub src        ($self) { $self->{src}        }
 sub env        ($self) { $self->{env}        }
-sub depends_on ($self) { $self->{depends_on} }
+
+sub parameters ($self) { $self->{parameters}->@* }
 
 __PACKAGE__;
 

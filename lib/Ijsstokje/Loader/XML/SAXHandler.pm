@@ -6,6 +6,7 @@ use experimental 'signatures', 'postderef';
 
 use Vislijn::Ref;
 
+use Ijsstokje::Parameter;
 use Ijsstokje::Page;
 use Ijsstokje::Page::Store;
 use Ijsstokje::Page::Store::Provider;
@@ -74,10 +75,11 @@ sub _inflate_page ($self, $data) {
                 my $name             = $provider->{attributes}->{'name'};
                 my ($type, $handler) = split /\// => $provider->{attributes}->{'provider'};
 
-                my %parameters;
+                my @parameters;
                 foreach my $param ( $provider->{children}->@* ) {
-                    $parameters{ $param->{attributes}->{'to'} } = Vislijn::Ref->new(
-                        $param->{attributes}->{'from'}
+                    push @parameters => Ijsstokje::Parameter->new(
+                        $param->{attributes}->{'name'},
+                        Vislijn::Ref->new( $param->{attributes}->{'from'} )
                     );
                 }
 
@@ -85,7 +87,7 @@ sub _inflate_page ($self, $data) {
                     type       => $type,
                     handler    => $handler,
                     name       => $name,
-                    parameters => \%parameters,
+                    parameters => \@parameters,
                 )
             }
 
@@ -94,8 +96,13 @@ sub _inflate_page ($self, $data) {
         elsif ( $c->{name} eq 'component' ) {
             push @components => Ijsstokje::Page::Component->new(
                 $c->{attributes}->%{qw[ type src env ]},
-                depends_on => [
-                    map Vislijn::Ref->new( $_->{attributes}->{'on'} ), $c->{children}->@*
+                parameters => [
+                    map {
+                        Ijsstokje::Parameter->new(
+                            $_->{attributes}->{'name'},
+                            Vislijn::Ref->new( $_->{attributes}->{'from'} )
+                        )
+                    } $c->{children}->@*
                 ]
             );
         }

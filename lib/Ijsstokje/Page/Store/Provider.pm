@@ -10,7 +10,7 @@ use parent 'UNIVERSAL::Object::Immutable';
 use slots (
     type         => sub {},
     handler      => sub {},
-    parameters   => sub { +{} },
+    parameters   => sub { +[] },
 );
 
 ## add Type checking here
@@ -18,7 +18,7 @@ use slots (
 sub type    ($self) { $self->{type}    }
 sub handler ($self) { $self->{handler} }
 
-sub parameters ($self) { $self->{parameters}->%* }
+sub parameters ($self) { $self->{parameters}->@* }
 
 __PACKAGE__;
 

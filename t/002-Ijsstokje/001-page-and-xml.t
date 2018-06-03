@@ -8,6 +8,7 @@ use Test::More;
 BEGIN {
     use_ok('Vislijn::Ref');
 
+    use_ok('Ijsstokje::Parameter');
     use_ok('Ijsstokje::Page');
     use_ok('Ijsstokje::Page::Store');
     use_ok('Ijsstokje::Page::Store::Provider');
@@ -28,21 +29,21 @@ sub _load_from_perl {
             Foo => Ijsstokje::Page::Store::Provider->new(
                 type       => 'perl',
                 handler    => 'Some::Class::Foo',
-                parameters => {
-                    bar             => Vislijn::Ref->new( 'request.query:foo' ),
-                    foo             => Vislijn::Ref->new( 'request.query:bar' ),
-                    return_type     => Vislijn::Ref->new( 'request.header:Content-Type' ),
-                    user            => Vislijn::Ref->new( 'session:user.name' ),
-                    is_allowed      => Vislijn::Ref->new( 'config:is.allowed' ),
-                    show_extra_data => Vislijn::Ref->new( 'experiment:test_show_extra_data' ),
-                }
+                parameters => [
+                    Ijsstokje::Parameter->new( bar              => Vislijn::Ref->new( 'request.query:foo' ) ),
+                    Ijsstokje::Parameter->new( foo              => Vislijn::Ref->new( 'request.query:bar' ) ),
+                    Ijsstokje::Parameter->new( return_type      => Vislijn::Ref->new( 'request.header:Content-Type' ) ),
+                    Ijsstokje::Parameter->new( user             => Vislijn::Ref->new( 'session:user.name' ) ),
+                    Ijsstokje::Parameter->new( is_allowed       => Vislijn::Ref->new( 'config:is.allowed' ) ),
+                    Ijsstokje::Parameter->new( show_extra_data  => Vislijn::Ref->new( 'experiment:test_show_extra_data' ) ),
+                ]
             ),
             Baz => Ijsstokje::Page::Store::Provider->new(
                 type       => 'perl',
                 handler    => 'Some::Class::Baz',
-                parameters => {
-                    user => Vislijn::Ref->new( 'session:user.name' ),
-                }
+                parameters => [
+                    Ijsstokje::Parameter->new( user => Vislijn::Ref->new( 'session:user.name' ) ),
+                ]
             )
         ),
         components => [
@@ -50,18 +51,18 @@ sub _load_from_perl {
                 type       => 'svelte',
                 src        => 'Foo-Card.js',
                 env        => 'server',
-                depends_on => [
-                    Vislijn::Ref->new( 'store:Foo' ),
-                    Vislijn::Ref->new( 'store:Baz' ),
-                    Vislijn::Ref->new( 'config:card.defaults' ),
+                parameters => [
+                    Ijsstokje::Parameter->new( Foo      => Vislijn::Ref->new( 'store:Foo' ) ),
+                    Ijsstokje::Parameter->new( Baz      => Vislijn::Ref->new( 'store:Baz' ) ),
+                    Ijsstokje::Parameter->new( defaults => Vislijn::Ref->new( 'config:card.defaults' ) ),
                 ]
             ),
             Ijsstokje::Page::Component->new(
                 type       => 'svelte',
                 src        => 'Modal.js',
                 env        => 'client',
-                depends_on => [
-                    Vislijn::Ref->new( 'store:Baz' ),
+                parameters => [
+                    Ijsstokje::Parameter->new( Baz => Vislijn::Ref->new( 'store:Baz' ) ),
                 ]
             ),
         ],
@@ -106,11 +107,20 @@ foreach my $p ( _load_from_xml(), _load_from_perl() ) {
 			is($c->type, 'svelte', '... got the expected type');
 			is($c->src, 'Foo-Card.js', '... got the expected src');
 			is($c->env, 'server', '... got the expected env');
-			is_deeply(
-				$c->depends_on,
-				[ map Vislijn::Ref->new( $_ ), 'store:Foo', 'store:Baz', 'config:card.defaults' ],
-				'... got the expected depends_on'
-			);
+
+            my ($Foo, $Baz, $defaults) = $c->parameters;
+            isa_ok($Foo, 'Ijsstokje::Parameter');
+            isa_ok($Baz, 'Ijsstokje::Parameter');
+            isa_ok($defaults, 'Ijsstokje::Parameter');
+
+            isa_ok($Foo->ref, 'Vislijn::Ref');
+            isa_ok($Baz->ref, 'Vislijn::Ref');
+            isa_ok($defaults->ref, 'Vislijn::Ref');
+
+            is($Foo->ref->referent, 'store', '... got the expected referent');
+            is($Baz->ref->referent, 'store', '... got the expected referent');
+            is($defaults->ref->referent, 'config', '... got the expected referent');
+
 		};
 
 		subtest '... testing the client component' => sub {
@@ -122,7 +132,11 @@ foreach my $p ( _load_from_xml(), _load_from_perl() ) {
 			is($c->type, 'svelte', '... got the expected type');
 			is($c->src, 'Modal.js', '... got the expected src');
 			is($c->env, 'client', '... got the expected env');
-			is_deeply($c->depends_on, [ Vislijn::Ref->new( 'store:Baz' ) ],  '... got the expected depends_on');
+
+			my ($Baz) = $c->parameters;
+            isa_ok($Baz, 'Ijsstokje::Parameter');
+            isa_ok($Baz->ref, 'Vislijn::Ref');
+            is($Baz->ref->referent, 'store', '... got the expected referent');
 		};
 
 		subtest '... testing page body' => sub {
@@ -144,26 +158,26 @@ __DATA__
 
 	<store>
 		<tmpl-data name="Foo" provider="perl/Some::Class::Foo">
-			<param from="request.query:foo"               to="bar" />
-			<param from="request.query:bar"               to="foo" />
-			<param from="request.header:Content-Type"     to="return_type" />
-			<param from="session:user.name"               to="user" />
-			<param from="config:is.allowed"               to="is_allowed" />
-			<param from="experiment:test_show_extra_data" to="show_extra_data" />
+			<param name="bar"              from="request.query:foo"              />
+			<param name="foo"              from="request.query:bar"              />
+			<param name="return_type"      from="request.header:Content-Type"    />
+			<param name="user"             from="session:user.name"              />
+			<param name="is_allowed"       from="config:is.allowed"              />
+			<param name="show_extra_data"  from="experiment:test_show_extra_data"/>
 		</tmpl-data>
 		<tmpl-data name="Baz" provider="perl/Some::Class::Baz">
-			<param from="session:user.name" to="user" />
+			<param name="user" from="session:user.name" />
 		</tmpl-data>
 	</store>
 
 	<component type="svelte" src="Foo-Card.js" env="server">
-		<depends on="store:Foo" />
-		<depends on="store:Baz" />
-		<depends on="config:card.defaults" />
+		<param name="Foo"      from="store:Foo" />
+		<param name="Baz"      from="store:Baz" />
+		<param name="defaults" from="config:card.defaults" />
 	</component>
 
 	<component type="svelte" src="Modal.js" env="client">
-		<depends on="store:Baz" />
+		<param name="Baz" from="store:Baz" />
 	</component>
 
 	<body
