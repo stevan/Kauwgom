@@ -37,9 +37,9 @@ sub resolve ($self, $ctx, @refs) {
 
     my @results;
     foreach my $ref ( @refs ) {
-        my $source = $resolvers->{ $ref->source };
+        my $source = $resolvers->{ $ref->referent };
 
-        Carp::confess('Unable to find the source ['.$ref->source.'] for ref: '.$ref->to_string)
+        Carp::confess('Unable to find the source ['.$ref->referent.'] for ref: '.$ref->to_string)
             unless $source;
 
         push @results => $source->(
@@ -65,10 +65,10 @@ __END__
 
   my ($foo, $bar) = $resolver->resolve(
       { foo => 10, bar => 20 },
-      [
+      (
           Vislijn::Ref->new( 'hash:foo' ),
           Vislijn::Ref->new( 'hash:bar' ),
-      ]
-  )->@*;
+      )
+  );
 
 =cut

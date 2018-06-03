@@ -10,24 +10,24 @@ our $VERSION = '0.01';
 
 use parent 'UNIVERSAL::Object::Immutable';
 use slots (
-    _source => sub {},
-    _param  => sub {},
+    _referent  => sub {},
+    _parameter => sub {},
 );
 
 sub BUILDARGS ($class, @args) {
     Carp::confess('Expected a single argument to `new`, not ' . scalar @args)
         unless scalar @args == 1 && not ref $args[0];
 
-    my ($source, $param) = split /\:/ => $args[0];
-    return { _source => $source, _param => $param };
+    my ($referent, $param) = split /\:/ => $args[0];
+    return { _referent => $referent, _parameter => $param };
 }
 
-sub source ($self) { $self->{_source} }
+sub referent ($self) { $self->{_referent} }
 
-sub has_parameter ($self) { defined $self->{_param} }
-sub get_parameter ($self) {         $self->{_param} }
+sub has_parameter ($self) { defined $self->{_parameter} }
+sub get_parameter ($self) {         $self->{_parameter} }
 
-sub to_string ($self) { join ':' => $self->{_source}, $self->{_param} // () }
+sub to_string ($self) { join ':' => $self->{_referent}, $self->{_parameter} // () }
 
 __PACKAGE__;
 
@@ -43,6 +43,6 @@ __END__
   my $name_ref    = Vislijn::Ref->new( 'request.query:name' );
   my $page_id_ref = Vislijn::Ref->new( 'request.query:page_id' );
 
-  my ($page_id, $name) = $resolver->resolve( $context, [ $page_id_ref, $name_ref ] )->@*;
+  my ($page_id, $name) = $resolver->resolve( $context, $page_id_ref, $name_ref );
 
 =cut
