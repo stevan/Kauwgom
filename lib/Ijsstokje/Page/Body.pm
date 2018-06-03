@@ -4,9 +4,8 @@ use v5.24;
 use warnings;
 use experimental 'signatures', 'postderef';
 
-use Scalar::Util     ();
-use Path::Tiny       ();
-use Text::Handlebars ();
+use Scalar::Util ();
+use Path::Tiny   ();
 
 our $VERSION = '0.01';
 
@@ -15,9 +14,6 @@ use slots (
     layout      => sub { die 'You must specify a `layout`' },
     header      => sub {},
     footer      => sub {},
-    ## internal data ...
-    _handlebars => sub { Text::Handlebars->new }
-
 );
 
 sub BUILD ($self, $) {
@@ -34,24 +30,6 @@ sub BUILD ($self, $) {
 sub layout ($self) { $self->{layout} }
 sub header ($self) { $self->{header} }
 sub footer ($self) { $self->{footer} }
-
-sub render ($self, $params) {
-
-    my $hb = $self->{_handlebars};
-
-    # render the header and footer if we have them ...
-    $params->{header} = $hb->render( $self->{header}, $params ) if $self->{header};
-    $params->{footer} = $hb->render( $self->{footer}, $params ) if $self->{footer};
-
-    # NOTE:
-    # We might want to think about just putting
-    # the header/footer into `header` and `footer`
-    # keys respectively. Perhaps a more unique
-    # name would make more sense.
-    # - SL
-
-    return $hb->render( $self->{layout}, $params );
-}
 
 __PACKAGE__;
 

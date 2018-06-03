@@ -6,8 +6,9 @@ use experimental 'signatures', 'postderef';
 
 use Test::More;
 
-use Path::Tiny ();
-use Plack::Request;
+use Path::Tiny       ();
+use Plack::Request   ();
+use Text::Handlebars ();
 
 BEGIN {
     use_ok('Ijsstokje::Loader::XML');
@@ -64,7 +65,7 @@ my $body = $page->body;
 isa_ok($body, 'Ijsstokje::Page::Body');
 
 is(
-    $body->render({ title => 'Foo', content => 'Bar' }),
+    Text::Handlebars->new->render( $body->layout->stringify, { title => 'Foo', content => 'Bar' }),
     q|<html>
 <head>
     <title>Foo</title>
