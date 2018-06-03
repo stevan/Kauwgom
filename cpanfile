@@ -20,5 +20,8 @@ requires 'XML::SAX::Expat'   => 0;
 ## JS stuff
 requires 'JavaScript::Duktape::XS' => 0;
 
+## templating
+requires 'Text::Handlebars'  => 0;
+
 ## testing
 requires 'Test::More'        => 0;
