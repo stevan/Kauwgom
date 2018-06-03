@@ -20,7 +20,7 @@ my $dir = Path::Tiny::path(__FILE__)
             ->parent # /t/001-Kauwgom
             ->parent # /t
             ->parent # /
-            ->child('examples/Basic');
+            ->child('examples/Kauwgom/Basic');
 
 my $app  = Plack::Util::load_psgi( $dir->child('app.psgi')->stringify );
 my $test = Plack::Test->create( $app );
